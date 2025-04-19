@@ -31,6 +31,7 @@ var app = new Vue({
                 this.connected = true
                 this.loading = false
                 this.setCamera()
+                this.setCamera2()
             })
             this.ros.on('error', (error) => {
                 this.logs.unshift((new Date()).toTimeString() + ` - Error: ${error}`)
@@ -40,6 +41,7 @@ var app = new Vue({
                 this.connected = false
                 this.loading = false
                 document.getElementById('divCamera').innerHTML = ''
+                document.getElementById('divCamera2').innerHTML = ''
             })
         },
         disconnect: function() {
@@ -104,6 +106,21 @@ var app = new Vue({
                 width: 320,
                 height: 240,
                 topic: '/camera/rgb/image_raw',
+                ssl: true,
+            })
+        },
+        setCamera2: function() {
+            let without_wss = this.rosbridge_address.split('wss://')[1]
+            console.log(without_wss)
+            let domain = without_wss.split('/')[0] + '/' + without_wss.split('/')[1]
+            console.log(domain)
+            let host = domain + '/cameras'
+            let viewer = new MJPEGCANVAS.Viewer({
+                divID: 'divCamera2',
+                host: host,
+                width: 320,
+                height: 240,
+                topic: '/camera/depth/image_raw',
                 ssl: true,
             })
         },
