@@ -27,7 +27,15 @@
                     <div class="card">
                         <div class="card-body">
                             <h3>{{ menu_title }}</h3>
-                            <p>{{ p_content_01 }}</p>
+                            <hr>
+                            <label>ROSBridge address</label>
+                            <br>
+                            <!-- Whatever the value you put into this field, it will be read inside the JavaScript. -->
+                            <input type="text" v-model="rosbridge_address" />
+                            <br>
+                            <button class="mt-2 btn btn-success" v-if="connected"
+                                @click="disconnect">Connected!</button>
+                            <button class="mt-2 btn btn-primary" v-else @click="connect">Connect!</button>
                         </div>
                     </div>
                 </div>
@@ -35,7 +43,10 @@
                     <div class="card">
                         <div class="card-body">
                             <h2 class="text-center">{{ main_title }}</h2>
-                            <p>{{ p_content_02 }}</p>
+                            <hr>
+                            <p>Some actions for the robot</p>
+                            <button class="mt-2 btn btn-primary" :disabled="!connected" @click="sendCommand">Move the
+                                robot!</button>
                         </div>
                     </div>
                 </div>
