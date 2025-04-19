@@ -10,6 +10,36 @@
     <script src="https://s3.eu-west-1.amazonaws.com/rosject.io/js/roslib.min.js">
 
     </script>
+
+    <style type="text/css">
+        #dragstartzone {
+            position: relative;
+            display: inline-block;
+            width: 200px;
+            height: 200px;
+            border: 1px solid #333;
+            border-radius: 50%;
+            z-index: 10;
+            -moz-user-select: -moz-none;
+            -khtml-user-select: none;
+            -webkit-user-select: none;
+        }
+
+        #dragCircle {
+            position: absolute;
+            z-index: 9;
+            border: 1px solid transparent;
+            border-radius: 50%;
+            background-color: rgba(0, 0, 0, 30%);
+            -moz-user-select: -moz-none;
+            -khtml-user-select: none;
+            -webkit-user-select: none;
+        }
+
+        #dragCircle:hover {
+            background-color: lightcoral;
+        }
+    </style>
 </head>
 
 <body class="d-flex flex-column h-100">
@@ -42,17 +72,26 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-8">
+                <div class="col-md-4">
                     <div class="card">
-                        <div class="card-body">
-                            <h2 class="text-center">{{ main_title }}</h2>
+                        <div class="card-body text-center">
+                            <h2 class="text-center">Joystick</h2>
                             <hr>
                             <p>Some actions for the robot</p>
-                            <button class="mt-2 btn btn-primary" :disabled="!connected" @click="sendCommand">Move the
-                                robot!</button>
-                            <button class="mt-2 btn btn-primary" :disabled="!connected" @click="turnRight">Turn
-                                right!</button>
-                            <button class="mt-2 btn btn-danger" :disabled="!connected" @click="stop">Stop!</button>
+                            <div id="dragstartzone" @mousedown="startDrag" @mousemove="doDrag">
+                            </div>
+                            <div id="dragCircle" :style="dragCircleStyle"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h2 class="text-center">Joystick values</h2>
+                            <hr />
+                            <p>Vertical: {{ joystick.vertical.toFixed(3) }}</p>
+                            <br />
+                            <p>Horizontal: {{ joystick.horizontal.toFixed(3) }}</p>
                         </div>
                     </div>
                 </div>
@@ -79,6 +118,7 @@
         script.src = 'main.js?v=3.' + Date.now();
         document.head.appendChild(script);
     </script>
+
 </body>
 
 </html>
