@@ -50,13 +50,21 @@
                             <h2 class="text-center">{{ main_title }}</h2>
                             <hr>
                             <p>Some actions for the robot</p>
-                            <button class="mt-2 btn btn-primary" :disabled="!connected" @click="sendCommand">Move the
-                                robot!</button>
-                            <button class="mt-2 btn btn-primary" :disabled="!connected" @click="turnRight">Turn
-                                right!</button>
-                            <button class="mt-2 btn btn-danger" :disabled="!connected" @click="stop">Stop!</button>
+                            <button class="mt-2 btn btn-primary" :disabled="!connected || fenceMode"
+                                @click="sendCommand">Move the robot!</button>
+                            <button class="mt-2 btn btn-primary" :disabled="!connected || fenceMode"
+                                @click="turnRight">Turn right!</button>
+                            <button class="mt-2 btn btn-danger" :disabled="!connected || fenceMode"
+                                @click="stop">Stop!</button>
+                            <br>
+                            <button class="mt-2 btn btn-success" :disabled="!connected || fenceMode"
+                                @click="switchFenceMode">Turn on fence mode</button>
+                            <button class="mt-2 btn btn-danger" :disabled="!connected || !fenceMode"
+                                @click="switchFenceMode">Turn off fence mode</button>
                             <hr>
                             <p>Subscribing robot data</p>
+                            <p v-if="fenceMode && insideFence" class="text-success">The robot is inside the fence!!</p>
+                            <p v-if="fenceMode && !insideFence" class="text-danger">The robot is outside the fence!!</p>
                             <p>
                                 <span>X: {{ position.x.toFixed(2) }}</span>
                                 <br>

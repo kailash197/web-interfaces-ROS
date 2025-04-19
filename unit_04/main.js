@@ -3,10 +3,13 @@ let vueApp = new Vue({
     data: {
         // ros connection
         ros: null,
-        rosbridge_address: 'wss://i-0734dfc7411934198.robotigniteacademy.com/rosbridge/',
+        rosbridge_address: 'wss://i-0edfd58971bf7a79c.robotigniteacademy.com/rosbridge/',
         connected: false,
         // subscriber data
         position: { x: 0, y: 0, z: 0, },
+        // fence mode
+        fenceMode: false,
+        insideFence: false,
         // page content
         menu_title: 'Connection',
         main_title: 'Main title, from Vue!!',
@@ -29,7 +32,10 @@ let vueApp = new Vue({
                 })
                 topic.subscribe((message) => {
                     this.position = message.pose.pose.position
-                    console.log(message)
+                    console.log(`fence mode is ${this.fenceMode}`)
+                    if (this.fenceMode) {
+                        this.stayOnTheFence(message.pose.pose.position)
+                    }
                 })
             })
             this.ros.on('error', (error) => {
@@ -79,6 +85,33 @@ let vueApp = new Vue({
                 angular: { x: 0, y: 0, z: 0, },
             })
             topic.publish(message)
+        },
+        switchFenceMode: function() {
+            this.fenceMode = !this.fenceMode
+        },
+        stayOnTheFence: function(position) {
+            let topicToPublish = new ROSLIB.Topic({
+                ros: this.ros,
+                name: '/cmd_vel',
+                messageType: 'geometry_msgs/Twist'
+            })
+            if (position.x > -5 && position.x < 5 && position.y > -5 && position.y < 5) {
+                // we are inside the fence!
+                this.insideFence = true
+                let message = new ROSLIB.Message({
+                    linear: { x: 0.5, y: 0, z: 0, },
+                    angular: { x: 0, y: 0, z: 0, },
+                })
+                topicToPublish.publish(message)
+            } else {
+                // we are outside the fence!
+                this.insideFence = false
+                let message = new ROSLIB.Message({
+                    linear: { x: 0.5, y: 0, z: 0, },
+                    angular: { x: 0, y: 0, z: 0.5, },
+                })
+                topicToPublish.publish(message)
+            }
         },
     },
     mounted() {
