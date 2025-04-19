@@ -35,14 +35,13 @@ var app = new Vue({
         disconnect: function() {
             this.ros.close()
         },
-        callExampleService: function() {
-            // service is busy
+        performTakeoff: function() {
+            // define page as busy
             this.service_busy = true
-            this.service_response = ''
             // define the service to be called
             let service = new ROSLIB.Service({
                 ros: this.ros,
-                name: '/example/service',
+                name: '/hector_services/takeoff',
                 serviceType: 'std_srvs/SetBool',
             })
 
@@ -51,10 +50,37 @@ var app = new Vue({
                 data: true,
             })
 
-            // define a callback
+            // call service and define a callback
             service.callService(request, (result) => {
                 this.service_busy = false
-                this.service_response = JSON.stringify(result)
+                console.log(result)
+            }, (error) => {
+                this.service_busy = false
+                console.error(error)
+            })
+        },
+        performLanding: function() {
+            // define page as busy
+            this.service_busy = true
+            // define the service to be called
+            let service = new ROSLIB.Service({
+                ros: this.ros,
+                name: '/hector_services/landing',
+                serviceType: 'std_srvs/SetBool',
+            })
+
+            // define the request
+            let request = new ROSLIB.ServiceRequest({
+                data: true,
+            })
+
+            // call service and define a callback
+            service.callService(request, (result) => {
+                this.service_busy = false
+                console.log(result)
+            }, (error) => {
+                this.service_busy = false
+                console.error(error)
             })
         },
     },

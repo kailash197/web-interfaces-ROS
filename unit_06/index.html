@@ -34,9 +34,10 @@
 
                     <!-- 1st row -->
                     <div class="col-md-12 text-center my-2">
-                        <button @click="callExampleService" :disabled="loading || !connected || service_busy"
-                            class="btn btn-primary">Call example service</button>
-                        <p>{{ service_response }}</p>
+                        <button @click="performTakeoff" :disabled="loading || !connected || service_busy"
+                            class="btn btn-primary">Takeoff</button>
+                        <button @click="performLanding" :disabled="loading || !connected || service_busy"
+                            class="btn btn-primary">Landing</button>
                     </div>
                 </div>
             </div>
