@@ -1,0 +1,59 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script type="text/javascript" src="https://s3.eu-west-1.amazonaws.com/rosject.io/js/roslib.min.js">
+
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js">
+
+    </script>
+</head>
+
+<body>
+    <div id="app" class="container">
+        <div class="row">
+            <div class="col-md-12 col-sm-6 text-center">
+                <h3>Connection status</h3>
+                <p class="text-danger" v-if="!connected">Not connected!</p>
+                <p class="text-success" v-if="connected">Connected!</p>
+                <label>ROSBridge address</label>
+                <br>
+                <input type="text" v-model="rosbridge_address" />
+                <br><br>
+                <button :disabled="loading" class="btn btn-danger" @click="disconnect"
+                    v-if="connected">Disconnect!</button>
+                <button :disabled="loading" class="btn btn-success" @click="connect" v-else>Connect!</button>
+            </div>
+            <div class="col-md-12 col-sm-6" style="overflow:auto;">
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <h5>Available services</h5>
+                    </div>
+
+                    <!-- 1st row -->
+                    <div class="col-md-12 text-center my-2">
+                        <button @click="callExampleService" :disabled="loading || !connected || service_busy"
+                            class="btn btn-primary">Call example service</button>
+                        <p>{{ service_response }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script type="text/javascript">
+            // We could have loaded main.js simply with:
+            //  <script type="text/javascript" src="main.js">
+            //
+            // BUT we were having caching-related problems.
+            // Loading main.js with a Date.now() in the URL we avoid using cache
+
+            var script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = 'main.js?v=6.' + Date.now();
+            document.head.appendChild(script);
+        </script>
+</body>
+
+</html>
