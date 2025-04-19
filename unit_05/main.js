@@ -1,121 +1,113 @@
-let vueApp = new Vue({
-    el: "#vueApp",
-    data: {
-        // ros connection
-        ros: null,
-        rosbridge_address: 'wss://i-0edfd58971bf7a79c.robotigniteacademy.com/rosbridge/',
-        connected: false,
-        // subscriber data
-        position: { x: 0, y: 0, z: 0, },
-        // fence mode
-        fenceMode: false,
-        insideFence: false,
-        // page content
-        menu_title: 'Connection',
-        main_title: 'Main title, from Vue!!',
+// ws://54.147.26.233:9090
+
+var app = new Vue({
+    el: '#app',
+    // computed values
+    computed: {
+        ws_address: function() {
+            return `${this.rosbridge_address}`
+        },
     },
+    // storing the state of the page
+    data: {
+        connected: false,
+        ros: null,
+        logs: [],
+        loading: false,
+        topic: null,
+        message: null,
+        rosbridge_address: '',
+        port: '9090',
+    },
+    // helper methods to connect to ROS
     methods: {
         connect: function() {
-            // define ROSBridge connection object
+            this.loading = true
             this.ros = new ROSLIB.Ros({
-                url: this.rosbridge_address
+                url: this.ws_address
             })
-
-            // define callbacks
             this.ros.on('connection', () => {
+                this.logs.unshift((new Date()).toTimeString() + ' - Connected!')
                 this.connected = true
-                console.log('Connection to ROSBridge established!')
-                let topic = new ROSLIB.Topic({
-                    ros: this.ros,
-                    name: '/odom',
-                    messageType: 'nav_msgs/Odometry'
-                })
-                topic.subscribe((message) => {
-                    this.position = message.pose.pose.position
-                    console.log(`fence mode is ${this.fenceMode}`)
-                    if (this.fenceMode) {
-                        this.stayOnTheFence(message.pose.pose.position)
-                    }
-                })
+                this.loading = false
+                this.setCamera()
             })
             this.ros.on('error', (error) => {
-                console.log('Something went wrong when trying to connect')
-                console.log(error)
+                this.logs.unshift((new Date()).toTimeString() + ` - Error: ${error}`)
             })
             this.ros.on('close', () => {
+                this.logs.unshift((new Date()).toTimeString() + ' - Disconnected!')
                 this.connected = false
-                console.log('Connection to ROSBridge was closed!')
+                this.loading = false
+                document.getElementById('divCamera').innerHTML = ''
             })
         },
         disconnect: function() {
             this.ros.close()
         },
-        sendCommand: function() {
-            let topic = new ROSLIB.Topic({
+        setTopic: function() {
+            this.topic = new ROSLIB.Topic({
                 ros: this.ros,
                 name: '/cmd_vel',
                 messageType: 'geometry_msgs/Twist'
             })
-            let message = new ROSLIB.Message({
-                linear: { x: 1, y: 0, z: 0, },
-                angular: { x: 0, y: 0, z: 0.5, },
-            })
-            topic.publish(message)
         },
-        turnRight: function() {
-            let topic = new ROSLIB.Topic({
-                ros: this.ros,
-                name: '/cmd_vel',
-                messageType: 'geometry_msgs/Twist'
-            })
-            let message = new ROSLIB.Message({
+        forward: function() {
+            this.message = new ROSLIB.Message({
                 linear: { x: 1, y: 0, z: 0, },
-                angular: { x: 0, y: 0, z: -0.5, },
+                angular: { x: 0, y: 0, z: 0, },
             })
-            topic.publish(message)
+            this.setTopic()
+            this.topic.publish(this.message)
         },
         stop: function() {
-            let topic = new ROSLIB.Topic({
-                ros: this.ros,
-                name: '/cmd_vel',
-                messageType: 'geometry_msgs/Twist'
-            })
-            let message = new ROSLIB.Message({
+            this.message = new ROSLIB.Message({
                 linear: { x: 0, y: 0, z: 0, },
                 angular: { x: 0, y: 0, z: 0, },
             })
-            topic.publish(message)
+            this.setTopic()
+            this.topic.publish(this.message)
         },
-        switchFenceMode: function() {
-            this.fenceMode = !this.fenceMode
-        },
-        stayOnTheFence: function(position) {
-            let topicToPublish = new ROSLIB.Topic({
-                ros: this.ros,
-                name: '/cmd_vel',
-                messageType: 'geometry_msgs/Twist'
+        backward: function() {
+            this.message = new ROSLIB.Message({
+                linear: { x: -1, y: 0, z: 0, },
+                angular: { x: 0, y: 0, z: 0, },
             })
-            if (position.x > -5 && position.x < 5 && position.y > -5 && position.y < 5) {
-                // we are inside the fence!
-                this.insideFence = true
-                let message = new ROSLIB.Message({
-                    linear: { x: 0.5, y: 0, z: 0, },
-                    angular: { x: 0, y: 0, z: 0, },
-                })
-                topicToPublish.publish(message)
-            } else {
-                // we are outside the fence!
-                this.insideFence = false
-                let message = new ROSLIB.Message({
-                    linear: { x: 0.5, y: 0, z: 0, },
-                    angular: { x: 0, y: 0, z: 0.5, },
-                })
-                topicToPublish.publish(message)
-            }
+            this.setTopic()
+            this.topic.publish(this.message)
+        },
+        turnLeft: function() {
+            this.message = new ROSLIB.Message({
+                linear: { x: 0.5, y: 0, z: 0, },
+                angular: { x: 0, y: 0, z: 0.5, },
+            })
+            this.setTopic()
+            this.topic.publish(this.message)
+        },
+        turnRight: function() {
+            this.message = new ROSLIB.Message({
+                linear: { x: 0.5, y: 0, z: 0, },
+                angular: { x: 0, y: 0, z: -0.5, },
+            })
+            this.setTopic()
+            this.topic.publish(this.message)
+        },
+        setCamera: function() {
+            let without_wss = this.rosbridge_address.split('wss://')[1]
+            console.log(without_wss)
+            let domain = without_wss.split('/')[0] + '/' + without_wss.split('/')[1]
+            console.log(domain)
+            let host = domain + '/cameras'
+            let viewer = new MJPEGCANVAS.Viewer({
+                divID: 'divCamera',
+                host: host,
+                width: 320,
+                height: 240,
+                topic: '/camera/rgb/image_raw',
+                ssl: true,
+            })
         },
     },
     mounted() {
-        // page is ready
-        console.log('page is ready!')
     },
 })
