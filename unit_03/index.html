@@ -4,8 +4,12 @@
     <title>My first web page for ROS!</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script>
-    <script src="https://s3.eu-west-1.amazonaws.com/rosject.io/js/roslib.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js">
+
+    </script>
+    <script src="https://s3.eu-west-1.amazonaws.com/rosject.io/js/roslib.min.js">
+
+    </script>
 </head>
 
 <body class="d-flex flex-column h-100">
@@ -30,7 +34,6 @@
                             <hr>
                             <label>ROSBridge address</label>
                             <br>
-                            <!-- Whatever the value you put into this field, it will be read inside the JavaScript. -->
                             <input type="text" v-model="rosbridge_address" />
                             <br>
                             <button class="mt-2 btn btn-success" v-if="connected"
@@ -47,6 +50,9 @@
                             <p>Some actions for the robot</p>
                             <button class="mt-2 btn btn-primary" :disabled="!connected" @click="sendCommand">Move the
                                 robot!</button>
+                            <button class="mt-2 btn btn-primary" :disabled="!connected" @click="turnRight">Turn
+                                right!</button>
+                            <button class="mt-2 btn btn-danger" :disabled="!connected" @click="stop">Stop!</button>
                         </div>
                     </div>
                 </div>
@@ -60,6 +66,7 @@
             <h5>page ends here!</h5>
         </div>
     </footer>
+
     <script type="text/javascript">
         // We could have loaded main.js simply with:
         //  <script type="text/javascript" src="main.js">
@@ -69,10 +76,9 @@
 
         var script = document.createElement('script');
         script.type = 'text/javascript';
-        script.src = 'main.js?v=2.' + Date.now();
+        script.src = 'main.js?v=3.' + Date.now();
         document.head.appendChild(script);
     </script>
-
 </body>
 
 </html>
