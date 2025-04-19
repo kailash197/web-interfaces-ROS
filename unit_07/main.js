@@ -8,6 +8,9 @@ var app = new Vue({
         loading: false,
         rosbridge_address: '',
         port: '9090',
+        mapViewer: null,
+        mapGridClient: null,
+        interval: null,
     },
     // helper methods to connect to ROS
     methods: {
@@ -20,6 +23,25 @@ var app = new Vue({
                 this.logs.unshift((new Date()).toTimeString() + ' - Connected!')
                 this.connected = true
                 this.loading = false
+
+                this.mapViewer = new ROS2D.Viewer({
+                    divID: 'map',
+                    width: 420,
+                    height: 360
+                })
+
+                // Setup the map client.
+                this.mapGridClient = new ROS2D.OccupancyGridClient({
+                    ros: this.ros,
+                    rootObject: this.mapViewer.scene,
+                    continuous: true,
+                })
+                // Scale the canvas to fit to the map
+                this.mapGridClient.on('change', () => {
+                    this.mapViewer.scaleToDimensions(this.mapGridClient.currentGrid.width, this.mapGridClient.currentGrid.height);
+                    this.mapViewer.shift(this.mapGridClient.currentGrid.pose.position.x, this.mapGridClient.currentGrid.pose.position.y)
+                })
+
             })
             this.ros.on('error', (error) => {
                 this.logs.unshift((new Date()).toTimeString() + ` - Error: ${error}`)
@@ -28,6 +50,7 @@ var app = new Vue({
                 this.logs.unshift((new Date()).toTimeString() + ' - Disconnected!')
                 this.connected = false
                 this.loading = false
+                document.getElementById('map').innerHTML = ''
             })
         },
         disconnect: function() {
@@ -35,5 +58,10 @@ var app = new Vue({
         },
     },
     mounted() {
+        this.interval = setInterval(() => {
+            if (this.ros != null && this.ros.isConnected) {
+                this.ros.getNodes((data) => { }, (error) => { })
+            }
+        }, 10000)
     },
 })
