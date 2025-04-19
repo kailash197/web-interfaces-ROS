@@ -9,8 +9,8 @@ var app = new Vue({
         rosbridge_address: '',
         port: '9090',
         service_busy: false,
-        param_val: 0,
-        param_read_val: 0,
+        param_linear_x: 0,
+        param_angular_z: 0,
     },
     // helper methods to connect to ROS
     methods: {
@@ -36,38 +36,35 @@ var app = new Vue({
         disconnect: function() {
             this.ros.close()
         },
-        set_param: function() {
+        set_parameters: function() {
             // set as busy
             service_busy = true
 
-            let web_param = new ROSLIB.Param({
+            let linear_x = new ROSLIB.Param({
                 ros: this.ros,
-                name: 'web_param'
+                name: '/web_param/linear_x'
             })
+            linear_x.set(this.param_linear_x)
 
-            web_param.set(this.param_val)
+            let angular_z = new ROSLIB.Param({
+                ros: this.ros,
+                name: '/web_param/angular_z'
+            })
+            angular_z.set(this.param_angular_z)
 
             // set as not busy
             service_busy = false
         },
-        read_param: function() {
+        stop_robot: function() {
             // set as busy
             service_busy = true
 
-            let web_param = new ROSLIB.Param({
-                ros: this.ros,
-                name: 'web_param'
-            })
+            this.param_linear_x = 0
+            this.param_angular_z = 0
+            this.set_parameters()
 
-            web_param.get((value) => {
-                // set as not busy
-                service_busy = false
-                this.param_read_val = value
-            }, (err) => {
-                // set as not busy
-                service_busy = false
-            })
-
+            // set as not busy
+            service_busy = false
         },
     },
     mounted() {

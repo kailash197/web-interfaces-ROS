@@ -37,22 +37,25 @@
                 <div class="row">
                     <!-- Available parameters -->
                     <div class="col-md-12 text-center my-2">
-                        <h5>Parameter: param_val</h5>
+                        <h5>Parameters</h5>
                         <hr>
-                        <input type="range" min="0" max="20" step="1" v-model.number="param_val" />
-                        <p>{{ param_val }}</p>
-                        <button @click="set_param" :disabled="loading || !connected || service_busy"
-                            class="btn btn-success">Set param</button>
-                        <hr>
-                        <button @click="read_param" :disabled="loading || !connected || service_busy"
-                            class="btn btn-primary">Read param</button>
-                        <p>Read value: {{ param_read_val }}</p>
+                        <div class="row">
+                            <div class="col-md-6 text-right">
+                                <p>Linear.x</p>
+                                <input type="range" min="0" max="2" step="0.1" v-model.number="param_linear_x">
+                                <p>{{ param_linear_x }}</p>
+                            </div>
+                            <div class="col-md-6 text-left">
+                                <p>Angular.z</p>
+                                <input type="range" min="0" max="2" step="0.1" v-model.number="param_angular_z">
+                                <p>{{ param_angular_z }}</p>
+                            </div>
+                        </div>
+                        <button @click="set_parameters" :disabled="loading || !connected || service_busy"
+                            class="btn btn-success">Set parameters</button>
+                        <button @click="stop_robot" :disabled="loading || !connected || service_busy"
+                            class="btn btn-primary">Stop robot!</button>
                     </div>
-                    <!-- Available commands -->
-                    <!-- <div class="col-md-6 text-center my-2">
-                        <h5>Commands</h5>
-                        <button @click="go" :disabled="loading || !connected || service_busy" class="btn btn-primary">Go!</button>
-                    </div> -->
                 </div>
             </div>
         </div>
